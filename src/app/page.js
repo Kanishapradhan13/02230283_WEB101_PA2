@@ -100,6 +100,7 @@ const PokemonApp = () => {
 
   return (
     <div>
+      <h1 class="font-serif text-4xl text-center">Pokédex</h1>
       <div className="flex m-8">
         {view === 'search' && (
           <>
@@ -121,7 +122,7 @@ const PokemonApp = () => {
           </Button>
         )}
         <Button className="mx-8" onClick={switchToCaughtPage}>
-          Caught Pokémons
+          View Caught Pokémons
         </Button>
       </div>
       {view === 'search' ? (
@@ -174,7 +175,7 @@ const PokemonApp = () => {
         </div>
       ) : (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Caught Pokémon:</h2>
+          <h2 className="text-2xl font-bold mb-4">Caught Pokémons:</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {caughtPokemons.map((pokemon) => (
               <div key={pokemon.name} className="bg-white shadow-md rounded-lg p-4">
