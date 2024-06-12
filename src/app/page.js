@@ -2,19 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useStore from '../store/store';
 
 const PokemonApp = () => {
   const [query, setQuery] = useState('');
   const [pokemons, setPokemons] = useState([]);
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [speciesData, setSpeciesData] = useState(null);
-  const [caughtPokemons, setCaughtPokemons] = useState([]);
   const [view, setView] = useState('search');
 
-  useEffect(() => {
-    const storedCaughtPokemons = JSON.parse(localStorage.getItem('caughtPokemons')) || [];
-    setCaughtPokemons(storedCaughtPokemons);
-  }, []);
+  const caughtPokemons = useStore((state) => state.caughtPokemons);
+  const addPokemon = useStore((state) => state.addPokemon);
+  const releasePokemon = useStore((state) => state.releasePokemon);
 
   const handleSearch = async () => {
     if (query.trim()) {
@@ -25,7 +24,7 @@ const PokemonApp = () => {
           setSelectedPokemon(data);
           setPokemons([]); // Clear the list of the first 20 Pokémon when searching for a specific one
           fetchSpeciesData(data.species.url);
-          addToCaught(data);
+          addPokemon(data);
         } else {
           setSelectedPokemon(null);
           alert('Pokemon not found!');
@@ -43,7 +42,7 @@ const PokemonApp = () => {
         const data = await response.json();
         setSelectedPokemon(data);
         fetchSpeciesData(data.species.url);
-        addToCaught(data);
+        addPokemon(data);
       } else {
         alert('Pokemon not found!');
       }
@@ -65,22 +64,6 @@ const PokemonApp = () => {
     } catch (error) {
       console.error('Error fetching the species data:', error);
     }
-  };
-
-  const addToCaught = (pokemon) => {
-    const caughtPokemons = JSON.parse(localStorage.getItem('caughtPokemons')) || [];
-    if (!caughtPokemons.find(p => p.name === pokemon.name)) {
-      caughtPokemons.push(pokemon);
-      localStorage.setItem('caughtPokemons', JSON.stringify(caughtPokemons));
-      setCaughtPokemons(caughtPokemons);
-    }
-  };
-
-  const releasePokemon = (pokemonName) => {
-    const caughtPokemons = JSON.parse(localStorage.getItem('caughtPokemons')) || [];
-    const updatedCaughtPokemons = caughtPokemons.filter(p => p.name !== pokemonName);
-    localStorage.setItem('caughtPokemons', JSON.stringify(updatedCaughtPokemons));
-    setCaughtPokemons(updatedCaughtPokemons);
   };
 
   const switchToCaughtPage = () => {
