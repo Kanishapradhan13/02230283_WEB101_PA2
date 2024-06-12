@@ -163,7 +163,7 @@ const PokemonApp = () => {
             </div>
           ) : (
             <div>
-              <h2 className="text-2xl font-bold mb-4">First 20 Pokémon:</h2>
+              <h2 className="text-2xl font-bold mb-4">20 Pokémons:</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {pokemons.map((pokemon) => (
                   <div
