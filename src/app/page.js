@@ -1,8 +1,17 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import useStore from '../store/store';
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import usestore from '../store/store';  // Adjust the path based on your directory structure
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis
+} from "../components/ui/pagination";
 
 const PokemonApp = () => {
   const [query, setQuery] = useState('');
@@ -10,10 +19,12 @@ const PokemonApp = () => {
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [speciesData, setSpeciesData] = useState(null);
   const [view, setView] = useState('search');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const caughtPokemons = useStore((state) => state.caughtPokemons);
-  const addPokemon = useStore((state) => state.addPokemon);
-  const releasePokemon = useStore((state) => state.releasePokemon);
+  const caughtPokemons = usestore((state) => state.caughtPokemons);
+  const addPokemon = usestore((state) => state.addPokemon);
+  const releasePokemon = usestore((state) => state.releasePokemon);
 
   const handleSearch = async () => {
     if (query.trim()) {
@@ -78,7 +89,7 @@ const PokemonApp = () => {
     if (view === 'search') {
       const fetchPokemons = async () => {
         try {
-          const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=20');
+          const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=20&offset=${(page - 1) * 20}`);
           const data = await response.json();
 
           const pokemonDetails = await Promise.all(
@@ -89,6 +100,7 @@ const PokemonApp = () => {
           );
 
           setPokemons(pokemonDetails);
+          setTotalPages(Math.ceil(data.count / 20));
         } catch (error) {
           console.error('Error fetching the Pokémon:', error);
         }
@@ -96,11 +108,10 @@ const PokemonApp = () => {
 
       fetchPokemons();
     }
-  }, [view]);
+  }, [view, page]);
 
   return (
     <div>
-      <h1 class="font-serif text-4xl text-center">Pokédex</h1>
       <div className="flex m-8">
         {view === 'search' && (
           <>
@@ -122,7 +133,7 @@ const PokemonApp = () => {
           </Button>
         )}
         <Button className="mx-8" onClick={switchToCaughtPage}>
-          View Caught Pokémons
+          Caught Pokémons
         </Button>
       </div>
       {view === 'search' ? (
@@ -170,12 +181,33 @@ const PokemonApp = () => {
                   </div>
                 ))}
               </div>
+              <Pagination className="flex justify-center mt-4">
+                <PaginationContent>
+                  <PaginationPrevious onClick={() => setPage(page - 1)} disabled={page === 1} />
+                  {page > 2 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+                  {page > 1 && (
+                    <PaginationItem>
+                      <PaginationLink onClick={() => setPage(page - 1)}>{page - 1}</PaginationLink>
+                    </PaginationItem>
+                  )}
+                  <PaginationItem>
+                    <PaginationLink isActive>{page}</PaginationLink>
+                  </PaginationItem>
+                  {page < totalPages && (
+                    <PaginationItem>
+                      <PaginationLink onClick={() => setPage(page + 1)}>{page + 1}</PaginationLink>
+                    </PaginationItem>
+                  )}
+                  {page < totalPages - 1 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+                  <PaginationNext onClick={() => setPage(page + 1)} disabled={page === totalPages} />
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </div>
       ) : (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Caught Pokémons:</h2>
+          <h2 className="text-2xl font-bold mb-4">Caught Pokémon:</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {caughtPokemons.map((pokemon) => (
               <div key={pokemon.name} className="bg-white shadow-md rounded-lg p-4">
